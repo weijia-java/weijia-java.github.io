@@ -8,9 +8,21 @@
       <link href="2020/12/22/My-New-Post/"/>
       <url>2020/12/22/My-New-Post/</url>
       
-        <content type="html"><![CDATA[<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2>]]></content>
+        <content type="html"><![CDATA[<h2 id="Hexo文章初步建设"><a href="#Hexo文章初步建设" class="headerlink" title="Hexo文章初步建设"></a>Hexo文章初步建设</h2><ol><li>新建文章命令 <code>hexo new post postname</code></li><li>文章生成 <code>hexo g</code></li><li>文章发布 <code>hexo d</code></li></ol>]]></content>
       
       
+      <categories>
+          
+          <category> Hexo </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Hexo </tag>
+            
+        </tags>
       
     </entry>
     
