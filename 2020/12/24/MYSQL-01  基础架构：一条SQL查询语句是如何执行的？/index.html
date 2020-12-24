@@ -428,7 +428,34 @@
 <li>定期断开长连接。使用一段时间，或者程序里面判断一个占用内存过比较大的操作后，断开连接，之后查询重连。</li>
 <li>在MySQL 5.7或之后的版本中，你可以每次执行一个比较大的操作后使用<code>mysql_reset_connection</code>来初始化连接资源。这个过程不需要重连和重新做权限验证，但可以恢复到连接刚刚建立时的状态。</li>
 </ol>
-<h2 id="3-查询缓存"><a href="#3-查询缓存" class="headerlink" title="3 查询缓存"></a>3 查询缓存</h2><p>​        </p>
+<h2 id="3-查询缓存"><a href="#3-查询缓存" class="headerlink" title="3 查询缓存"></a>3 查询缓存</h2><p>​        在连接上服务端之后，我们就来到了查询缓存。MySQL拿到一个查询语句后，先查询缓存中是否崔在。MySQL会把之前执行的SQL语句和结果以<strong>key-value</strong>对的形式直接<strong>缓存到内存中</strong>。key是之前查询的整个SQL语句，而value是查询结果。若果缓存命中直接返回给客户端。</p>
+<p>​        如果未命中，则继续后面的分析，优化和执行阶段，执行结果会保存到缓存中。</p>
+<p>​        <em>但大多数情况下建议不要使用缓存，因为缓存命中率极低，并且还要占据内存。</em></p>
+<p>​        查询缓存的命中率非常低，只要一个表进行了更新操作，这个表上的所有查询缓存都会被清空。因此可能刚刚把上一条执行结果缓存进去，马上该表就发生了更新导致缓存丢失。对于一个更新压力大的数据库，查询缓存命中率极低。除非你是一个静态表或者更新操作极少的表（系统配置表）。</p>
+<p>​        MySQL提供了按照需要是否使用缓存。可以将参数<code>query_cache_type</code>设置成<code>DEMAND</code>，这种模式下SQL语句不会使用查询缓存。对于使用查询缓存的语句，可以使用<code>SQL_CACHE</code>显示指定。如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select SQL_CACHE * from T where ID&#x3D;10；</span><br></pre></td></tr></table></figure>
+<p>​        <strong>注：查询缓存在 MySQL 8.0 版本直接删除了，没有查询缓存这个功能了。</strong></p>
+<p>​        <strong>注：查询缓存命中返回结果前，会进行权限查询，判断当前用户是否有对这个表操作的权限。</strong></p>
+<p>​        </p>
+<h2 id="4-分析器"><a href="#4-分析器" class="headerlink" title="4 分析器"></a>4 分析器</h2><p>​        如果没有命中查询缓存，就开始真正的执行语句了。首先MySQL需要知道你要做什么，因此需要对SQL语句进行<strong>“词法分析”</strong>。你输入的是由多个字符串和空格组成的SQL语句，MySQL需要识别出里面的字符串的含义。</p>
+<p>​        MySQL从你输入的“<code>SELECT</code>”关键字识别出，这是一个查询语句。它也要把字符串“T”识别成“表名T”，把字符串“ID”识别成“列ID”。</p>
+<p>​        做完这些识别后，还要做的就是语法分析。根据上面词法分析的结果，语法分析会语法规则，判断你输入的这个SQL语句是否满足MySQL语法。如果语句错误，会给你返回<code>YOU HAVE AN ERROR IN YOU SQL SYNTAX</code>的错误提醒，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">mysql&gt; elect * from t where ID&#x3D;1;</span><br><span class="line"></span><br><span class="line">ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near &#39;elect * from t where ID&#x3D;1&#39; at line 1</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="5-优化器"><a href="#5-优化器" class="headerlink" title="5 优化器"></a>5 优化器</h2><p>​        经过了分析器，MySQL就知道你要做什么了。在开始执行之前，还要经过优化器的处理。</p>
+<p>​        优化器是在表里面有多个索引的时候，决定使用哪个索引，或者在一个语句有多表关联的时候，决定各个表的连接顺序。比如你执行下面这样的语句，这个语句是执行两个表的join：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from t1 join t2 using(ID)  where t1.c&#x3D;10 and t2.d&#x3D;20;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>既可以先从t1里面取出c=10的记录ID值，在根据ID值关联到t2，再判断t2里面的d是否等于20。</li>
+<li>也可以先从t2里面取出d=20的记录ID值，再根据ID值关联到t1，再判断t1里面的c是否等于10。</li>
+</ul>
+<p>​        两种执行方法的结果一样，但执行所需要的时间是不同的，而优化器的作用就是决定使用哪一个方案。优化器阶段完成后，这个语句的执行方案就确定下来了，然后进入执行器阶段。</p>
+<h2 id="6-执行器"><a href="#6-执行器" class="headerlink" title="6 执行器"></a>6 执行器</h2><p>​        开始执行的时候要判断当前用户是否对这个表拥有权限，如果没有则返回无权限错误。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from T where ID&#x3D;10;</span><br><span class="line"></span><br><span class="line">ERROR 1142 (42000): SELECT command denied to user &#39;b&#39;@&#39;localhost&#39; for table &#39;T&#39;</span><br></pre></td></tr></table></figure>
+<p>​        有权限，就打开表继续执行。打开表的时候执行器会根据引擎定义，去使用引擎提供的接口。</p>
+<p>​        在无索引的情况下会一行一行的进行对比查找结果，存在索引的情况下，会在索引树上一层一层的进行对比。</p>
+<h2 id="7-注"><a href="#7-注" class="headerlink" title="7 注"></a>7 注</h2><p>如果表中没有字段K，而你执行了这个语句<code>select * from T where k=1</code>肯定会报错：“Unknown column k in where clause”，这个错误是在<strong>分析器</strong>上给出的。</p>
 
   
   
@@ -463,7 +490,7 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-24T20:51:47+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-24T21:43:08+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
     <p>更新于：Dec 24, 2020</p>
@@ -596,7 +623,7 @@ win、IOS系统使用markdown软件打开编辑，命令行使用v...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-MYSQL%E6%85%A2%E6%9F%A5%E8%AF%A2"><span class="toc-text">0 MYSQL慢查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text">1 基本结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%BF%9E%E6%8E%A5%E5%99%A8"><span class="toc-text">2 连接器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%95%BF%E7%9F%AD%E8%BF%9E%E6%8E%A5"><span class="toc-text">长短连接</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98"><span class="toc-text">3 查询缓存</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-MYSQL%E6%85%A2%E6%9F%A5%E8%AF%A2"><span class="toc-text">0 MYSQL慢查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text">1 基本结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%BF%9E%E6%8E%A5%E5%99%A8"><span class="toc-text">2 连接器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%95%BF%E7%9F%AD%E8%BF%9E%E6%8E%A5"><span class="toc-text">长短连接</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98"><span class="toc-text">3 查询缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%88%86%E6%9E%90%E5%99%A8"><span class="toc-text">4 分析器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E4%BC%98%E5%8C%96%E5%99%A8"><span class="toc-text">5 优化器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%89%A7%E8%A1%8C%E5%99%A8"><span class="toc-text">6 执行器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%B3%A8"><span class="toc-text">7 注</span></a></li></ol>
     </div>
   </section>
 
