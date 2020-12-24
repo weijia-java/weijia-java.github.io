@@ -19,7 +19,7 @@
 
   <!-- 页面元数据 -->
   
-  <title>MYSQL-1-慢查询相关 - 初白的BLOG</title>
+  <title>MYSQL-01 | 基础架构：一条SQL查询语句是如何执行的？ - 初白的BLOG</title>
   
     <meta name="keywords" content="MYSQL">
   
@@ -325,7 +325,7 @@
     
     
       <h1 class="title">
-        MYSQL-1-慢查询相关
+        MYSQL-01 | 基础架构：一条SQL查询语句是如何执行的？
       </h1>
       <div class='new-meta-box'>
         
@@ -367,7 +367,7 @@
   <div class="new-meta-item browse leancloud">
     <a class='notlink'>
       
-      <div id="lc-pv" data-title="MYSQL-1-慢查询相关" data-path="/2020/12/24/MYSQL-1-%E6%85%A2%E6%9F%A5%E8%AF%A2%E7%9B%B8%E5%85%B3/">
+      <div id="lc-pv" data-title="MYSQL-01 | 基础架构：一条SQL查询语句是如何执行的？" data-path="/2020/12/24/MYSQL-1-%E6%85%A2%E6%9F%A5%E8%AF%A2%E7%9B%B8%E5%85%B3/">
         <i class="fas fa-eye fa-fw" aria-hidden="true"></i>
         <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
         次浏览
@@ -397,7 +397,10 @@
 <h2 id="1-基本结构"><a href="#1-基本结构" class="headerlink" title="1 基本结构"></a>1 基本结构</h2><p>​        写这篇文章主要是想梳理一下MYSQL在执行一条SQL语句的时候发生的各种情况，MYSQL自己是怎么处理的。比如更新一条信息，根据（没有）主键查询信息。在以上的古城中数据库是怎样处理一下连带问题（权限，缓存，一致性，脏读和幻读的问题）。</p>
 <p>​        </p>
 <p>​        在MYSQL中一共可以大致的分成两层（不包括客户端）<strong>server层和存储引擎</strong>，而MYSQL的SQL语句主要是在<strong>server</strong>层进行处理。</p>
-<p><img src="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png" class="lazyload" data-srcset="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png" srcset="data:image/png;base64,666" alt="MYSQL基本零件"></p>
+<img src="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png" class="lazyload" data-srcset="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png" srcset="data:image/png;base64,666" alt="MYSQL基本零件" style="zoom: 33%;" />
+
+
+
 
   
   
@@ -432,7 +435,7 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-24T18:35:18+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-24T18:41:29+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
     <p>更新于：Dec 24, 2020</p>
@@ -457,7 +460,7 @@
       
         <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://weijia-java.github.io/2020/12/24/MYSQL-1-%E6%85%A2%E6%9F%A5%E8%AF%A2%E7%9B%B8%E5%85%B3/&title=MYSQL-1-慢查询相关 - 初白的BLOG&summary="
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://weijia-java.github.io/2020/12/24/MYSQL-1-%E6%85%A2%E6%9F%A5%E8%AF%A2%E7%9B%B8%E5%85%B3/&title=MYSQL-01 | 基础架构：一条SQL查询语句是如何执行的？ - 初白的BLOG&summary="
           
           >
           
@@ -469,7 +472,7 @@
       
         <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://weijia-java.github.io/2020/12/24/MYSQL-1-%E6%85%A2%E6%9F%A5%E8%AF%A2%E7%9B%B8%E5%85%B3/&title=MYSQL-1-慢查询相关 - 初白的BLOG&summary="
+          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://weijia-java.github.io/2020/12/24/MYSQL-1-%E6%85%A2%E6%9F%A5%E8%AF%A2%E7%9B%B8%E5%85%B3/&title=MYSQL-01 | 基础架构：一条SQL查询语句是如何执行的？ - 初白的BLOG&summary="
           
           >
           
@@ -481,7 +484,7 @@
       
         <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://service.weibo.com/share/share.php?url=http://weijia-java.github.io/2020/12/24/MYSQL-1-%E6%85%A2%E6%9F%A5%E8%AF%A2%E7%9B%B8%E5%85%B3/&title=MYSQL-1-慢查询相关 - 初白的BLOG&summary="
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://weijia-java.github.io/2020/12/24/MYSQL-1-%E6%85%A2%E6%9F%A5%E8%AF%A2%E7%9B%B8%E5%85%B3/&title=MYSQL-01 | 基础架构：一条SQL查询语句是如何执行的？ - 初白的BLOG&summary="
           
           >
           
@@ -585,7 +588,7 @@ win、IOS系统使用markdown软件打开编辑，命令行使用v...</p>
 <script>
   window.pdata={}
   pdata.ispage=true;
-  pdata.postTitle="MYSQL-1-慢查询相关";
+  pdata.postTitle="MYSQL-01 | 基础架构：一条SQL查询语句是如何执行的？";
   pdata.commentPath="";
   pdata.commentPlaceholder="";
 
