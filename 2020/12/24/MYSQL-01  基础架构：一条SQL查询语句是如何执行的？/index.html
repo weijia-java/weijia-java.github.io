@@ -406,9 +406,29 @@
 <p>​        存储引擎负责<strong>数据的提取和存储</strong>功能。其架构是插件式（可更换），支持InnoDB、MyISAM、Memory等多个存储引擎，在MySQL 5.5.5版本开始默认InnoDB（在创建标时可以使用<code>engine=Memory</code>来使用你想要的存储引擎）。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from T where ID&#x3D;10；</span><br></pre></td></tr></table></figure>
 <p>​        下面开始简单的解释一下上面的语句的执行流程。</p>
-<h2 id="连接器"><a href="#连接器" class="headerlink" title="连接器"></a>连接器</h2><p>​        在MySQL执行上面的数据前，首先要创建一个链接，来连接数据库，这个时候就是连接器来起作用。连接器主要负责和用户<strong>建立链接，获取权限，维持和管理连接</strong>。连接命令如下：</p>
+<h2 id="2-连接器"><a href="#2-连接器" class="headerlink" title="2 连接器"></a>2 连接器</h2><p>​        在MySQL执行上面的数据前，首先要创建一个链接，来连接数据库，这个时候就是连接器来起作用。连接器主要负责和用户<strong>建立链接，获取权限，维持和管理连接</strong>。连接命令如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -h$ip -P$port -u$user -p -- 参数依次是数据库ip地址、端口号、用户名、密码</span><br></pre></td></tr></table></figure>
-<p>​        </p>
+<p>​        连接命令中的mysql是客户端工具，用来和服务端建立连接。在完成经典的TCP三次握手后，连接器开始验证身份。</p>
+<ul>
+<li><p>如果用户名或密码错误，收到一个<code>ACCESS DENIED FOR USER</code> 的错误。</p>
+</li>
+<li><p>如果验证通过，<strong>连接器首先会去权限表查找你当前用户所持有的权限。之后的所有操作都依赖与这一次的权限查询</strong>。这也就意味着在当前连接没断开或者重新连接之前，管理员怎么修改当前用户的权限都不会起到效果，修改权限之后，只有在<em>下一次连接时才会生效</em></p>
+<p>连接完成后如，如果你没有后续的动作，这个连接就处于空闲状态，你可以使用<code>show processlist</code>命令看到它，其中<code>sleep</code>表示连接在空闲状态</p>
+</li>
+</ul>
+<p><img src="https://static001.geekbang.org/resource/image/f2/ed/f2da4aa3a672d48ec05df97b9f992fed.png" class="lazyload" data-srcset="https://static001.geekbang.org/resource/image/f2/ed/f2da4aa3a672d48ec05df97b9f992fed.png" srcset="data:image/png;base64,666"></p>
+<p>​        如果空闲时间超过<code>wait_timeout</code>(最大空闲时间，默认值8小时)，自动断开连接。当断开连接后再去查询操作会返回<code>LOST CONNECTION TO MYSQL SERVER DURING QUERY</code> , 这时间你就需要重新连接，在执行当前请求了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like &#39;wait_timeout&#39;;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="长短连接"><a href="#长短连接" class="headerlink" title="长短连接"></a>长短连接</h3><p>​        数据库中，长连接是连接成功后，执行几个请求后，还继续长时间保持这个连接，下一个请求继续使用。短连接是连接成功后，在执行几个查询之后就断开连接，下一个查询新建一个连接。</p>
+<p>​        由于数据库中建立连接的过程非常浪费时间，所以建议使用长连接，减少短连接的使用。但由于大量使用长连接有时候会导致MySQL占用内存会越来越快，这是因为MySQL在执行过程中使用的内存是管理在连接对象里面的，这些资源会在连接断开的时候释放。长连接积累下来，导致内存占用过大，被系统前置杀掉（OOM），从现象看就是MySQL异常重启。</p>
+<p>​        解决上面的问题你可以用以下的两种方案：</p>
+<ol>
+<li>定期断开长连接。使用一段时间，或者程序里面判断一个占用内存过比较大的操作后，断开连接，之后查询重连。</li>
+<li>在MySQL 5.7或之后的版本中，你可以每次执行一个比较大的操作后使用<code>mysql_reset_connection</code>来初始化连接资源。这个过程不需要重连和重新做权限验证，但可以恢复到连接刚刚建立时的状态。</li>
+</ol>
+<h2 id="3-查询缓存"><a href="#3-查询缓存" class="headerlink" title="3 查询缓存"></a>3 查询缓存</h2><p>​        </p>
 
   
   
@@ -443,7 +463,7 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-24T19:10:48+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-24T20:51:47+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
     <p>更新于：Dec 24, 2020</p>
@@ -576,7 +596,7 @@ win、IOS系统使用markdown软件打开编辑，命令行使用v...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-MYSQL%E6%85%A2%E6%9F%A5%E8%AF%A2"><span class="toc-text">0 MYSQL慢查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text">1 基本结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E5%99%A8"><span class="toc-text">连接器</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-MYSQL%E6%85%A2%E6%9F%A5%E8%AF%A2"><span class="toc-text">0 MYSQL慢查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text">1 基本结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%BF%9E%E6%8E%A5%E5%99%A8"><span class="toc-text">2 连接器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%95%BF%E7%9F%AD%E8%BF%9E%E6%8E%A5"><span class="toc-text">长短连接</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98"><span class="toc-text">3 查询缓存</span></a></li></ol>
     </div>
   </section>
 
