@@ -19,9 +19,9 @@
 
   <!-- 页面元数据 -->
   
-  <title>MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？ - 初白的BLOG</title>
+  <title>MySQL-02 | 日志系统：一条SQL更新语句是如何执行的？ - 初白的BLOG</title>
   
-    <meta name="keywords" content="MySQL">
+    <meta name="keywords" content="MySQL,binlog,redo log">
   
 
   
@@ -325,7 +325,7 @@
     
     
       <h1 class="title">
-        MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？
+        MySQL-02 | 日志系统：一条SQL更新语句是如何执行的？
       </h1>
       <div class='new-meta-box'>
         
@@ -356,7 +356,7 @@
             <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Dec 24, 2020</p>
+    <p>发布于：Dec 28, 2020</p>
   </a>
 </div>
 
@@ -367,7 +367,7 @@
   <div class="new-meta-item browse leancloud">
     <a class='notlink'>
       
-      <div id="lc-pv" data-title="MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？" data-path="/2020/12/24/MYSQL-01%20%20%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/">
+      <div id="lc-pv" data-title="MySQL-02 | 日志系统：一条SQL更新语句是如何执行的？" data-path="/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/">
         <i class="fas fa-eye fa-fw" aria-hidden="true"></i>
         <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
         次浏览
@@ -389,73 +389,39 @@
 
 
   
-  <h1 id="MYSQL-01-基础架构：一条SQL查询语句是如何执行的？"><a href="#MYSQL-01-基础架构：一条SQL查询语句是如何执行的？" class="headerlink" title="MYSQL-01 | 基础架构：一条SQL查询语句是如何执行的？"></a>MYSQL-01 | 基础架构：一条SQL查询语句是如何执行的？</h1><h2 id="0-MYSQL慢查询"><a href="#0-MYSQL慢查询" class="headerlink" title="0 MYSQL慢查询"></a>0 MYSQL慢查询</h2><p>​        在web开发如此火爆的年代，数据库就成了我们开发中必不可少的一环。而使用数据库的绝大部分的时间是在单一的查询数据可，在大量的数据库查询中我们要尽可能的减少每一条的查询时间，而慢查询日志，就可以让我们在发现查询时间过长的SQL语句的时候对于查询为什么这么慢有很大帮助。</p>
-<p>​        下面是MYSQL <strong>慢查询日志：（一次性，永久的要修改my文件）</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">-- 查看慢查询日志是否打开</span><br><span class="line">show variables like &#39;%slow%&#39; ;</span><br><span class="line"></span><br><span class="line">-- 查看慢查询状态</span><br><span class="line">show global status like &#39;%slow%&#39;;</span><br><span class="line"> </span><br><span class="line">-- 打开慢查询日志</span><br><span class="line">set  @@global.slow_query_log &#x3D; ON;</span><br><span class="line"> </span><br><span class="line">-- 睡10s 测试慢查询</span><br><span class="line">select sleep(5) ;</span><br><span class="line"> </span><br><span class="line">-- 查看慢查询超时时间</span><br><span class="line">show variables like &#39;long_query%&#39;</span><br><span class="line"></span><br><span class="line">-- 设置慢查询时间，超过这个时间则记录入慢查询日志</span><br><span class="line">set long_query_time&#x3D;2</span><br><span class="line"></span><br><span class="line">-- 查看慢查询日志输出方式</span><br><span class="line">select @@global.log_output </span><br><span class="line"> </span><br><span class="line">-- 设置慢查询日志 table形式表示</span><br><span class="line">set @@global.log_output&#x3D;&#39;TABLE&#39;;</span><br><span class="line"> </span><br><span class="line">-- 查询慢查询日志</span><br><span class="line">select * from mysql.slow_log; </span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-<h2 id="1-基本结构"><a href="#1-基本结构" class="headerlink" title="1 基本结构"></a>1 基本结构</h2><p>​        写这篇文章主要是想梳理一下MYSQL在执行一条SQL语句的时候发生的各种情况，MYSQL自己是怎么处理的。比如更新一条信息，根据（没有）主键查询信息。在以上的古城中数据库是怎样处理一下连带问题（权限，缓存，一致性，脏读和幻读的问题）。</p>
-<p>​        </p>
-<p>​        在MYSQL中一共可以大致的分成两层（不包括客户端）<strong>server层和存储引擎</strong>，而MYSQL的SQL语句主要是在<strong>server</strong>层进行处理。</p>
-<img src="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png" class="lazyload" data-srcset="https://static001.geekbang.org/resource/image/0d/d9/0d2070e8f84c4801adbfa03bda1f98d9.png" srcset="data:image/png;base64,666" alt="MYSQL基本零件" style="zoom: 33%;" align="middle" />
-
-
-
-<p>​        在上图的可以看出，基本上分为server层和存储引擎两个部分。</p>
-<p>​        server层包括连接器、查询缓存（在8.0之后删除了）、分析器、优化器和执行器等，几乎包揽了MYSQL所有<strong>重要的核心功能，以及所有的内置函数。</strong>所有跨存储引擎的功能都在这一层实现，比如存储过程。触发器、视图等。</p>
-<p>​        存储引擎负责<strong>数据的提取和存储</strong>功能。其架构是插件式（可更换），支持InnoDB、MyISAM、Memory等多个存储引擎，在MySQL 5.5.5版本开始默认InnoDB（在创建标时可以使用<code>engine=Memory</code>来使用你想要的存储引擎）。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from T where ID&#x3D;10；</span><br></pre></td></tr></table></figure>
-<p>​        下面开始简单的解释一下上面的语句的执行流程。</p>
-<h2 id="2-连接器"><a href="#2-连接器" class="headerlink" title="2 连接器"></a>2 连接器</h2><p>​        在MySQL执行上面的数据前，首先要创建一个链接，来连接数据库，这个时候就是连接器来起作用。连接器主要负责和用户<strong>建立链接，获取权限，维持和管理连接</strong>。连接命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -h$ip -P$port -u$user -p -- 参数依次是数据库ip地址、端口号、用户名、密码</span><br></pre></td></tr></table></figure>
-<p>​        连接命令中的mysql是客户端工具，用来和服务端建立连接。在完成经典的TCP三次握手后，连接器开始验证身份。</p>
-<ul>
-<li><p>如果用户名或密码错误，收到一个<code>ACCESS DENIED FOR USER</code> 的错误。</p>
-</li>
-<li><p>如果验证通过，<strong>连接器首先会去权限表查找你当前用户所持有的权限。之后的所有操作都依赖与这一次的权限查询</strong>。这也就意味着在当前连接没断开或者重新连接之前，管理员怎么修改当前用户的权限都不会起到效果，修改权限之后，只有在<em>下一次连接时才会生效</em></p>
-<p>连接完成后如，如果你没有后续的动作，这个连接就处于空闲状态，你可以使用<code>show processlist</code>命令看到它，其中<code>sleep</code>表示连接在空闲状态</p>
-</li>
-</ul>
-<p><img src="https://static001.geekbang.org/resource/image/f2/ed/f2da4aa3a672d48ec05df97b9f992fed.png" class="lazyload" data-srcset="https://static001.geekbang.org/resource/image/f2/ed/f2da4aa3a672d48ec05df97b9f992fed.png" srcset="data:image/png;base64,666"></p>
-<p>​        如果空闲时间超过<code>wait_timeout</code>(最大空闲时间，默认值8小时)，自动断开连接。当断开连接后再去查询操作会返回<code>LOST CONNECTION TO MYSQL SERVER DURING QUERY</code> , 这时间你就需要重新连接，在执行当前请求了。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like &#39;wait_timeout&#39;;</span><br></pre></td></tr></table></figure>
-
-
-<h3 id="长短连接"><a href="#长短连接" class="headerlink" title="长短连接"></a>长短连接</h3><p>​        数据库中，长连接是连接成功后，执行几个请求后，还继续长时间保持这个连接，下一个请求继续使用。短连接是连接成功后，在执行几个查询之后就断开连接，下一个查询新建一个连接。</p>
-<p>​        由于数据库中建立连接的过程非常浪费时间，所以建议使用长连接，减少短连接的使用。但由于大量使用长连接有时候会导致MySQL占用内存会越来越快，这是因为MySQL在执行过程中使用的内存是管理在连接对象里面的，这些资源会在连接断开的时候释放。长连接积累下来，导致内存占用过大，被系统前置杀掉（OOM），从现象看就是MySQL异常重启。</p>
-<p>​        解决上面的问题你可以用以下的两种方案：</p>
+  <h2 id="更新流程"><a href="#更新流程" class="headerlink" title="更新流程"></a>更新流程</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create table T(ID int primary key, c int);</span><br><span class="line">mysql&gt; update T set c&#x3D;c+1 where ID&#x3D;2;</span><br></pre></td></tr></table></figure>
 <ol>
-<li>定期断开长连接。使用一段时间，或者程序里面判断一个占用内存过比较大的操作后，断开连接，之后查询重连。</li>
-<li>在MySQL 5.7或之后的版本中，你可以每次执行一个比较大的操作后使用<code>mysql_reset_connection</code>来初始化连接资源。这个过程不需要重连和重新做权限验证，但可以恢复到连接刚刚建立时的状态。</li>
-</ol>
-<h2 id="3-查询缓存"><a href="#3-查询缓存" class="headerlink" title="3 查询缓存"></a>3 查询缓存</h2><p>​        在连接上服务端之后，我们就来到了查询缓存。MySQL拿到一个查询语句后，先查询缓存中是否崔在。MySQL会把之前执行的SQL语句和结果以<strong>key-value</strong>对的形式直接<strong>缓存到内存中</strong>。key是之前查询的整个SQL语句，而value是查询结果。若果缓存命中直接返回给客户端。</p>
-<p>​        如果未命中，则继续后面的分析，优化和执行阶段，执行结果会保存到缓存中。</p>
-<p>​        <em>但大多数情况下建议不要使用缓存，因为缓存命中率极低，并且还要占据内存。</em></p>
-<p>​        查询缓存的命中率非常低，只要一个表进行了更新操作，这个表上的所有查询缓存都会被清空。因此可能刚刚把上一条执行结果缓存进去，马上该表就发生了更新导致缓存丢失。对于一个更新压力大的数据库，查询缓存命中率极低。除非你是一个静态表或者更新操作极少的表（系统配置表）。</p>
-<p>​        MySQL提供了按照需要是否使用缓存。可以将参数<code>query_cache_type</code>设置成<code>DEMAND</code>，这种模式下SQL语句不会使用查询缓存。对于使用查询缓存的语句，可以使用<code>SQL_CACHE</code>显示指定。如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select SQL_CACHE * from T where ID&#x3D;10；</span><br></pre></td></tr></table></figure>
-<p>​        <strong>注：查询缓存在 MySQL 8.0 版本直接删除了，没有查询缓存这个功能了。</strong></p>
-<p>​        <strong>注：查询缓存命中返回结果前，会进行权限查询，判断当前用户是否有对这个表操作的权限。</strong></p>
-<p>​        </p>
-<h2 id="4-分析器"><a href="#4-分析器" class="headerlink" title="4 分析器"></a>4 分析器</h2><p>​        如果没有命中查询缓存，就开始真正的执行语句了。首先MySQL需要知道你要做什么，因此需要对SQL语句进行<strong>“词法分析”</strong>。你输入的是由多个字符串和空格组成的SQL语句，MySQL需要识别出里面的字符串的含义。</p>
-<p>​        MySQL从你输入的“<code>SELECT</code>”关键字识别出，这是一个查询语句。它也要把字符串“T”识别成“表名T”，把字符串“ID”识别成“列ID”。</p>
-<p>​        做完这些识别后，还要做的就是语法分析。根据上面词法分析的结果，语法分析会语法规则，判断你输入的这个SQL语句是否满足MySQL语法。如果语句错误，会给你返回<code>YOU HAVE AN ERROR IN YOU SQL SYNTAX</code>的错误提醒，如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">mysql&gt; elect * from t where ID&#x3D;1;</span><br><span class="line"></span><br><span class="line">ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near &#39;elect * from t where ID&#x3D;1&#39; at line 1</span><br></pre></td></tr></table></figure>
+<li><p>先走一遍查询SQL语句的流程，拿到数据行。</p>
+</li>
+<li><p>执行更新，然后利用引擎接口把数据更新到内存中，同时将这次更新操作记录到redo log中，此时redo log处于prepare状态。</p>
+</li>
+<li><p>执行器生成这个操作的binlog，并把binlog写入磁盘。</p>
+</li>
+<li><p>执行器调用引擎的提交事务接口，并把redo log中的相应的prepare改为commit，更新完成。</p>
+<p><em>注：更新完成后，redo log里记录的操作是在一个合适的时间再写入数据库磁盘中。</em></p>
+<img src="https://static001.geekbang.org/resource/image/2e/be/2e5bff4910ec189fe1ee6e2ecc7b4bbe.png" class="lazyload" data-srcset="https://static001.geekbang.org/resource/image/2e/be/2e5bff4910ec189fe1ee6e2ecc7b4bbe.png" srcset="data:image/png;base64,666" style="zoom:50%;" />
 
-
-<h2 id="5-优化器"><a href="#5-优化器" class="headerlink" title="5 优化器"></a>5 优化器</h2><p>​        经过了分析器，MySQL就知道你要做什么了。在开始执行之前，还要经过优化器的处理。</p>
-<p>​        优化器是在表里面有多个索引的时候，决定使用哪个索引，或者在一个语句有多表关联的时候，决定各个表的连接顺序。比如你执行下面这样的语句，这个语句是执行两个表的join：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from t1 join t2 using(ID)  where t1.c&#x3D;10 and t2.d&#x3D;20;</span><br></pre></td></tr></table></figure>
+<h3 id="redo-log（重做日志）"><a href="#redo-log（重做日志）" class="headerlink" title="redo log（重做日志）"></a>redo log（重做日志）</h3><ul>
+<li><p>什么是重做日志文件redo log？</p>
+<p>假设在一个酒馆中，酒馆老板有一块粉板，专门用来记录客人的赊账记录。如果赊账的人不多，那么他可以把顾客姓名和账目写在板上。但如果赊账的人多了，粉板总会有记不下的时候，这个时候掌柜一定还有一个专门记录赊账的账本。</p>
+<p>如果有人要赊账或还账的话，一般有两种做法：</p>
 <ul>
-<li>既可以先从t1里面取出c=10的记录ID值，在根据ID值关联到t2，再判断t2里面的d是否等于20。</li>
-<li>也可以先从t2里面取出d=20的记录ID值，再根据ID值关联到t1，再判断t1里面的c是否等于10。</li>
+<li><p>直接把账本翻出来，把这次赊的帐加上去或者扣除掉。</p>
+</li>
+<li><p>另外一种，先把这次的帐记录在粉板上，等打样或者粉板写满之后再把账本翻出来核算。</p>
+</li>
 </ul>
-<p>​        两种执行方法的结果一样，但执行所需要的时间是不同的，而优化器的作用就是决定使用哪一个方案。优化器阶段完成后，这个语句的执行方案就确定下来了，然后进入执行器阶段。</p>
-<h2 id="6-执行器"><a href="#6-执行器" class="headerlink" title="6 执行器"></a>6 执行器</h2><p>​        开始执行的时候要判断当前用户是否对这个表拥有权限，如果没有则返回无权限错误。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from T where ID&#x3D;10;</span><br><span class="line"></span><br><span class="line">ERROR 1142 (42000): SELECT command denied to user &#39;b&#39;@&#39;localhost&#39; for table &#39;T&#39;</span><br></pre></td></tr></table></figure>
-<p>​        有权限，就打开表继续执行。打开表的时候执行器会根据引擎定义，去使用引擎提供的接口。</p>
-<p>​        在无索引的情况下会一行一行的进行对比查找结果，存在索引的情况下，会在索引树上一层一层的进行对比。</p>
-<h2 id="7-注"><a href="#7-注" class="headerlink" title="7 注"></a>7 注</h2><p>如果表中没有字段K，而你执行了这个语句<code>select * from T where k=1</code>肯定会报错：“Unknown column k in where clause”，这个错误是在<strong>分析器</strong>上给出的。</p>
+<p>在生意红火柜台很忙的时候，一般会选择后者。如果在很忙的时候使用第一种做法，那么你需要去拿出账本，翻找还账的顾客名，然后进行还账或者赊账操作。每次都需要翻找顾客名，效率极低。</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>​       </p>
+<p>​       </p>
+<p>​       </p>
+<p>​     </p>
+<p>​     </p>
+<p>​    </p>
 
   
   
@@ -473,7 +439,7 @@
               
             
               
-                <p>本文永久链接是：<a href=http://weijia-java.github.io/2020/12/24/MYSQL-01%20%20%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/>http://weijia-java.github.io/2020/12/24/MYSQL-01%20%20%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/</a></p>
+                <p>本文永久链接是：<a href=http://weijia-java.github.io/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/>http://weijia-java.github.io/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/</a></p>
               
             
           </blockquote>
@@ -490,10 +456,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-28T17:29:50+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-31T12:26:39+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Dec 28, 2020</p>
+    <p>更新于：Dec 31, 2020</p>
   </a>
 </div>
 
@@ -502,7 +468,7 @@
         
           
   
-  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/MySQL/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>MySQL</p></a></div>
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/MySQL/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>MySQL</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/binlog/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>binlog</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/redo-log/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>redo log</p></a></div>
 
 
         
@@ -515,7 +481,7 @@
       
         <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://weijia-java.github.io/2020/12/24/MYSQL-01%20%20%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/&title=MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？ - 初白的BLOG&summary="
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://weijia-java.github.io/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/&title=MySQL-02 | 日志系统：一条SQL更新语句是如何执行的？ - 初白的BLOG&summary="
           
           >
           
@@ -527,7 +493,7 @@
       
         <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://weijia-java.github.io/2020/12/24/MYSQL-01%20%20%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/&title=MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？ - 初白的BLOG&summary="
+          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://weijia-java.github.io/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/&title=MySQL-02 | 日志系统：一条SQL更新语句是如何执行的？ - 初白的BLOG&summary="
           
           >
           
@@ -539,7 +505,7 @@
       
         <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://service.weibo.com/share/share.php?url=http://weijia-java.github.io/2020/12/24/MYSQL-01%20%20%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/&title=MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？ - 初白的BLOG&summary="
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://weijia-java.github.io/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/&title=MySQL-02 | 日志系统：一条SQL更新语句是如何执行的？ - 初白的BLOG&summary="
           
           >
           
@@ -574,18 +540,10 @@
   
     <div class="prev-next">
       
-        <a class='prev' href='/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/'>
-          <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>MySQL-02 | 日志系统：一条SQL更新语句是如何执行的？</p>
-          <p class='content'>更新流程12mysql&gt; create table T(ID int primary key, c int);mysql&gt; update T set c&#x3D;c+1 where...</p>
-        </a>
       
-      
-        <a class='next' href='/2020/12/22/My-New-Post/'>
-          <p class='title'>My New Post<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-          <p class='content'>Hexo文章初步建设
-新建文章命令 hexo new post postname 
-文章生成目录存在于blog/scourse/
-win、IOS系统使用markdown软件打开编辑，命令行使用v...</p>
+        <a class='next' href='/2020/12/24/MYSQL-01%20%20%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/'>
+          <p class='title'>MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'>MYSQL-01 | 基础架构：一条SQL查询语句是如何执行的？0 MYSQL慢查询​        在web开发如此火爆的年代，数据库就成了我们开发中必不可少的一环。而使用数据库的绝大部分的时...</p>
         </a>
       
     </div>
@@ -628,7 +586,7 @@ win、IOS系统使用markdown软件打开编辑，命令行使用v...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-MYSQL%E6%85%A2%E6%9F%A5%E8%AF%A2"><span class="toc-text">0 MYSQL慢查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text">1 基本结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%BF%9E%E6%8E%A5%E5%99%A8"><span class="toc-text">2 连接器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%95%BF%E7%9F%AD%E8%BF%9E%E6%8E%A5"><span class="toc-text">长短连接</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98"><span class="toc-text">3 查询缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%88%86%E6%9E%90%E5%99%A8"><span class="toc-text">4 分析器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E4%BC%98%E5%8C%96%E5%99%A8"><span class="toc-text">5 优化器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%89%A7%E8%A1%8C%E5%99%A8"><span class="toc-text">6 执行器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%B3%A8"><span class="toc-text">7 注</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E6%B5%81%E7%A8%8B"><span class="toc-text">更新流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#redo-log%EF%BC%88%E9%87%8D%E5%81%9A%E6%97%A5%E5%BF%97%EF%BC%89"><span class="toc-text">redo log（重做日志）</span></a></li></ol></li></ol>
     </div>
   </section>
 
@@ -648,7 +606,7 @@ win、IOS系统使用markdown软件打开编辑，命令行使用v...</p>
 <script>
   window.pdata={}
   pdata.ispage=true;
-  pdata.postTitle="MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？";
+  pdata.postTitle="MySQL-02 | 日志系统：一条SQL更新语句是如何执行的？";
   pdata.commentPath="";
   pdata.commentPlaceholder="";
 

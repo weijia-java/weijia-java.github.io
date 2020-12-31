@@ -21,7 +21,7 @@
 
   <!-- 页面元数据 -->
   
-  <title>Tag: MYSQL - 初白的BLOG</title>
+  <title>Tag: MySQL - 初白的BLOG</title>
   
 
   
@@ -325,6 +325,8 @@
         
           
         
+          
+        
       
     
     
@@ -338,8 +340,58 @@
   
     
     <h2 class="article-title" >
+      <a href="/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/">
+        MySQL-02 | 日志系统：一条SQL更新语句是如何执行的？
+      </a>
+    </h2>
+  
+  <div class='md'>
+    
+      
+        更新流程12mysql&gt; create table T(ID int primary key, c int);mysql&gt; update T set c&#x3D;c+1 where ID&#x3D;2;
+
+先走一遍查询SQL语句的流程，拿到数据行。
+
+执行更新，然后利用引擎接口把数据更新到内存中，同时将这次更新操作记录到redo log中，此时redo log处于prepare...
+      
+    
+  </div>
+  
+    <div class='meta-v3' line_style='solid'>
+      <div>
+        
+        <time>2020-12-28</time>
+        
+          <span class="dot"></span>
+          <a class="category-link" href="/categories/MySQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">MySQL_深度解析</a>
+        
+      </div>
+      
+        <div>
+          <a class='readmore' href='/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/'>
+            Read More
+          </a>
+        </div>
+      
+    </div>
+  
+
+</div>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <div class="post post-v3 white-box reveal shadow">
+  
+  
+  
+  
+    
+    <h2 class="article-title" >
       <a href="/2020/12/24/MYSQL-01%20%20%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/">
-        MYSQL-01 | 基础架构：一条SQL查询语句是如何执行的？
+        MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？
       </a>
     </h2>
   
@@ -358,7 +410,7 @@
         <time>2020-12-24</time>
         
           <span class="dot"></span>
-          <a class="category-link" href="/categories/MYSQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">MYSQL_深度解析</a>
+          <a class="category-link" href="/categories/MySQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">MySQL_深度解析</a>
         
       </div>
       
@@ -482,9 +534,9 @@
             ><div class='name'>Hexo</div><div class='badge'>(1)</div></a></li>
         
           <li><a class="flat-box"
-            title="/categories/MYSQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/" href="/categories/MYSQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/"
-            id="categoriesMYSQL-E6B7B1E5BAA6E8A7A3E69E90"
-            ><div class='name'>MYSQL_深度解析</div><div class='badge'>(1)</div></a></li>
+            title="/categories/MySQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/" href="/categories/MySQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/"
+            id="categoriesMySQL-E6B7B1E5BAA6E8A7A3E69E90"
+            ><div class='name'>MySQL_深度解析</div><div class='badge'>(2)</div></a></li>
         
       </ul>
     </div>
@@ -508,7 +560,7 @@
 
 
     <div class='content'>
-      <a href="/tags/Hexo/" style="font-size: 14px; color: #999">Hexo</a> <a href="/tags/MYSQL/" style="font-size: 14px; color: #999">MYSQL</a>
+      <a href="/tags/Hexo/" style="font-size: 14px; color: #999">Hexo</a> <a href="/tags/MySQL/" style="font-size: 24px; color: #555">MySQL</a> <a href="/tags/binlog/" style="font-size: 14px; color: #999">binlog</a> <a href="/tags/redo-log/" style="font-size: 14px; color: #999">redo log</a>
     </div>
   </section>
 
