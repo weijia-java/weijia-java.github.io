@@ -22,9 +22,9 @@
             
             <tag> MySQL </tag>
             
-            <tag> binlog </tag>
-            
             <tag> redo log </tag>
+            
+            <tag> binlog </tag>
             
         </tags>
       
