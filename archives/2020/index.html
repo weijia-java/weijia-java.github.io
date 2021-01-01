@@ -350,11 +350,11 @@
   <div class='md'>
     
       
-        更新流程12mysql&gt; create table T(ID int primary key, c int);mysql&gt; update T set c&#x3D;c+1 where ID&#x3D;2;
+        12mysql&gt; create table T(ID int primary key, c int);mysql&gt; update T set c&#x3D;c+1 where ID&#x3D;2;
 
 先走一遍查询SQL语句的流程，拿到数据行。
 
-执行更新，然后利用引擎接口把数据更新到内存中，同时将这次更新操作记录到redo log中，此时redo log处于prepare...
+执行更新，然后利用引擎接口把数据更新到内存中，同时将这次更新操作记录到redo log中，此时redo log相应数据状态处于prepa...
       
     
   </div>
