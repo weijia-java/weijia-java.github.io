@@ -5,8 +5,6 @@
   <!-- SEO相关 -->
   
     
-      <meta name="robots" content="noindex,follow">
-    
   
   <!-- 渲染优化 -->
   <meta http-equiv='x-dns-prefetch-control' content='on' />
@@ -21,7 +19,9 @@
 
   <!-- 页面元数据 -->
   
-  <title>Category: MySQL_深度解析 - 初白的BLOG</title>
+  <title>MySQL-03 | 事务隔离：为什么你改了我还看不见？ - 初白的BLOG</title>
+  
+    <meta name="keywords" content="MySQL,事务">
   
 
   
@@ -243,7 +243,7 @@
     <div id="l_cover">
   
     
-        <div id="half" class='cover-wrapper  search' style="display: ;">
+        <div id="half" class='cover-wrapper post search' style="display: ;">
           
             <div class='cover-bg lazyload placeholder' data-bg="https://cdn.jsdelivr.net/gh/volantis-x/cdn-wallpaper-minimalist/2020/033.jpg"></div>
           
@@ -314,179 +314,241 @@
       <div class='body-wrapper' id="pjax-container">
         
 
-
 <div class='l_main'>
+  <article class="article post white-box reveal md shadow article-type-post" id="post" itemscope itemprop="blogPost">
   
-    
-      
-  <section class="post-list">
-    
-      
-        
-          
-        
-          
-        
-          
-        
-      
+
+
+  
+  <div class="article-meta" id="top">
     
     
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
     
-    <h2 class="article-title" >
-      <a href="/2021/01/02/MySQL-03-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E6%94%B9%E4%BA%86%E6%88%91%E8%BF%98%E7%9C%8B%E4%B8%8D%E8%A7%81%EF%BC%9F/">
+      <h1 class="title">
         MySQL-03 | 事务隔离：为什么你改了我还看不见？
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        MySQL-03 | 事务隔离：为什么你改了我还看不见？提到MySQL数据库的读写操作，就必不可免的会想到事务，而MySQL数据库本身是没有事务功能的，事务不是所有的引擎都支持的。比如MySQL原生的MyISAM不支持事务。
-而事务就是用来保证一次事务的操作中，要么事务中的操作全部成功，要么全部失败，这也是保证了数据库的安全。
-（一）隔离性和隔离级别提到事务，伴随的肯定有ACID（Atomi...
-      
-    
+      </h1>
+      <div class='new-meta-box'>
+        
+          
+            
+<div class='new-meta-item author'>
+  <a class='author' href="/" rel="nofollow">
+    <img no-lazy src="">
+    <p>请设置文章作者</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  <div class='new-meta-item category'>
+    <a class='notlink'>
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <a class="category-link" href="/categories/MySQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">MySQL_深度解析</a>
+    </a>
   </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
+
+
+          
         
-        <time>2021-01-02</time>
+          
+            <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Jan 2, 2021</p>
+  </a>
+</div>
+
+          
         
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/MySQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">MySQL_深度解析</a>
+          
+            
+  <div class="new-meta-item browse leancloud">
+    <a class='notlink'>
+      
+      <div id="lc-pv" data-title="MySQL-03 | 事务隔离：为什么你改了我还看不见？" data-path="/2021/01/02/MySQL-03-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E6%94%B9%E4%BA%86%E6%88%91%E8%BF%98%E7%9C%8B%E4%B8%8D%E8%A7%81%EF%BC%9F/">
+        <i class="fas fa-eye fa-fw" aria-hidden="true"></i>
+        <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+        次浏览
+      </div>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+
+          
         
       </div>
+    
+  </div>
+
+
+  
+  <h1 id="MySQL-03-事务隔离：为什么你改了我还看不见？"><a href="#MySQL-03-事务隔离：为什么你改了我还看不见？" class="headerlink" title="MySQL-03 | 事务隔离：为什么你改了我还看不见？"></a>MySQL-03 | 事务隔离：为什么你改了我还看不见？</h1><p>提到MySQL数据库的读写操作，就必不可免的会想到事务，而MySQL数据库本身是没有事务功能的，事务不是所有的引擎都支持的。比如MySQL原生的<em>MyISAM不支持事务</em>。</p>
+<p>而事务就是用来保证一次事务的操作中，要么事务中的操作全部成功，要么全部失败，这也是保证了数据库的安全。</p>
+<h2 id="（一）隔离性和隔离级别"><a href="#（一）隔离性和隔离级别" class="headerlink" title="（一）隔离性和隔离级别"></a>（一）隔离性和隔离级别</h2><p>提到事务，伴随的肯定有ACID（Atomicity、Consistency、Isolation、Durability，即原子性、一致性、隔离性、持久性），下面就来详细解答一下“隔离性”。</p>
+<p>当数据库上有多个事务同时执行的时候，就可能出现脏读（dirty read）、不可重复读（non-repeatable read）、幻读（phantom read）的问题，为了解决这些问题，就有了“隔离界别”的概念。</p>
+<p>SQL标准的事务隔离级别包括：读未提交（read uncommitted）、读提交（read committed）。可重复读（repeatable read）和串行化（serializable）。</p>
+<ul>
+<li>读未提交：事务A没提交时，事务A的变更后的数据也可以被其它事务查看（select）。</li>
+<li>读提交：事务A只有在提交之后，事务A的变更后的数据才可以被其它事务查看（select）。（**<em>每一次select</em>都会生成一个视图**）</li>
+<li>可重复读：事务A在执行过程中查看到的数据永远是它第一次select到的数据，在可重复读的隔离级别下，只有在提交事务之后，其它事务才可以查看。<ul>
+<li>可重复读下是在<em>第一次select</em>的时候生成视图，且永远使用这个视图</li>
+<li>可重复读下，普通读是<strong>快照读</strong>，当其他事务执行了<code>insert，delete</code>并提交之后，当前事务下执行读取是<strong>当前读</strong>。</li>
+</ul>
+</li>
+<li>串行化：“写”加锁，“读”加锁。当出现读写锁冲突时，后访问的事务必须等前一个事务执行完成。</li>
+</ul>
+
+  
+  
+    
+    <div class='footer'>
       
-        <div>
-          <a class='readmore' href='/2021/01/02/MySQL-03-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E6%94%B9%E4%BA%86%E6%88%91%E8%BF%98%E7%9C%8B%E4%B8%8D%E8%A7%81%EF%BC%9F/'>
-            Read More
-          </a>
+      
+      
+        <div class='copyright'>
+          <blockquote>
+            
+              
+                <p>博客内容遵循 署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</p>
+
+              
+            
+              
+                <p>本文永久链接是：<a href=http://weijia-java.github.io/2021/01/02/MySQL-03-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E6%94%B9%E4%BA%86%E6%88%91%E8%BF%98%E7%9C%8B%E4%B8%8D%E8%A7%81%EF%BC%9F/>http://weijia-java.github.io/2021/01/02/MySQL-03-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E6%94%B9%E4%BA%86%E6%88%91%E8%BF%98%E7%9C%8B%E4%B8%8D%E8%A7%81%EF%BC%9F/</a></p>
+              
+            
+          </blockquote>
         </div>
+      
       
     </div>
   
+  
+    
 
+
+  <div class='article-meta' id="bottom">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-02T21:06:46+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：Jan 2, 2021</p>
+  </a>
 </div>
 
-          </div>
         
       
         
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
+          
   
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/">
-        MySQL-02 | 日志系统：一条SQL更新语句是如何执行的？
-      </a>
-    </h2>
-  
-  <div class='md'>
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/MySQL/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>MySQL</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>事务</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
     
       
-        12mysql&gt; create table T(ID int primary key, c int);mysql&gt; update T set c&#x3D;c+1 where ID&#x3D;2;
-
-先走一遍查询SQL语句的流程，拿到数据行。
-
-执行更新，然后利用引擎接口把数据更新到内存中，同时将这次更新操作记录到redo log中，此时redo log相应数据状态处于prepa...
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://weijia-java.github.io/2021/01/02/MySQL-03-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E6%94%B9%E4%BA%86%E6%88%91%E8%BF%98%E7%9C%8B%E4%B8%8D%E8%A7%81%EF%BC%9F/&title=MySQL-03 | 事务隔离：为什么你改了我还看不见？ - 初白的BLOG&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" srcset="data:image/png;base64,666">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://weijia-java.github.io/2021/01/02/MySQL-03-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E6%94%B9%E4%BA%86%E6%88%91%E8%BF%98%E7%9C%8B%E4%B8%8D%E8%A7%81%EF%BC%9F/&title=MySQL-03 | 事务隔离：为什么你改了我还看不见？ - 初白的BLOG&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" srcset="data:image/png;base64,666">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://weijia-java.github.io/2021/01/02/MySQL-03-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E6%94%B9%E4%BA%86%E6%88%91%E8%BF%98%E7%9C%8B%E4%B8%8D%E8%A7%81%EF%BC%9F/&title=MySQL-03 | 事务隔离：为什么你改了我还看不见？ - 初白的BLOG&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" srcset="data:image/png;base64,666">
+          
+        </a>
+      
+    
+      
+    
       
     
   </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2020-12-28</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/MySQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">MySQL_深度解析</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/'>
-            Read More
-          </a>
-        </div>
-      
-    </div>
-  
-
 </div>
 
-          </div>
+
+
         
       
         
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2020/12/24/MYSQL-01%20%20%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/">
-        MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
+          
+
+        
       
-        MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？0 MySQL慢查询​        在web开发如此火爆的年代，数据库就成了我们开发中必不可少的一环。而使用数据库的绝大部分的时间是在单一的查询数据可，在大量的数据库查询中我们要尽可能的减少每一条的查询时间，而慢查询日志，就可以让我们在发现查询时间过长的SQL语句的时候对于查询为什么这么慢有很大帮助。
-​        下面是...
-      
-    
+    </div>
   </div>
+
+
   
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2020-12-24</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/MySQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">MySQL_深度解析</a>
-        
-      </div>
+  
+
+  
+    <div class="prev-next">
       
-        <div>
-          <a class='readmore' href='/2020/12/24/MYSQL-01%20%20%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/'>
-            Read More
-          </a>
-        </div>
+      
+        <a class='next' href='/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/'>
+          <p class='title'>MySQL-02 | 日志系统：一条SQL更新语句是如何执行的？<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'>12mysql&gt; create table T(ID int primary key, c int);mysql&gt; update T set c&#x3D;c+1 where ID&...</p>
+        </a>
       
     </div>
   
+</article>
 
+
+  
+
+  <article class="post white-box reveal shadow" id="comments">
+    <p ct><i class='fas fa-comments'></i> 评论</p>
+    
+    <div id="valine_container" class="valine_thread">
+  <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
 </div>
 
-          </div>
-        
-      
-    
-  </section>
-  
-    
-  
+  </article>
 
 
-    
-  
+
+
+
+
 </div>
 <aside class='l_side'>
   
@@ -494,133 +556,28 @@
     
     
 
-<section class="widget blogger shadow desktop mobile">
-  <div class='content'>
-    
-      
-        <a class='avatar flat-box circle' href='/about/'>
-          <img no-lazy src='https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/blog/Logo-NavBar@3x.png'/>
-        </a>
-      
-    
-    
-      <div class='text'>
-        
-          <h2>Anduin</h2>
-        
-        
-        
-          <p><span id="jinrishici-sentence">初白的BLOG</span></p>
-          <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
-        
-      </div>
-    
-    
-      <div class="social-wrapper">
-        
-          
-            <a href="/atom.xml"
-              class="social fas fa-rss flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="mailto:me@xxx.com"
-              class="social fas fa-envelope flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="https://github.com/volantis-x/"
-              class="social fab fa-github flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="/"
-              class="social fas fa-headphones-alt flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-      </div>
-    
-  </div>
-</section>
 
-  
 
-  
-    
-    
-  
-
-  <section class="widget category shadow desktop">
+  <section class="widget toc-wrapper shadow desktop mobile" id="toc-div" >
     
   <header>
     
-      <a href='/blog/categories/'><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i><span class='name'>文章分类</span></a>
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
     
   </header>
 
 
     <div class='content'>
-      <ul class="entry navigation">
-        
-          <li><a class="flat-box"
-            title="/categories/Hexo/" href="/categories/Hexo/"
-            id="categoriesHexo"
-            ><div class='name'>Hexo</div><div class='badge'>(1)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/MySQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/" href="/categories/MySQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/"
-            id="categoriesMySQL-E6B7B1E5BAA6E8A7A3E69E90"
-            ><div class='name'>MySQL_深度解析</div><div class='badge'>(3)</div></a></li>
-        
-      </ul>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%88%E4%B8%80%EF%BC%89%E9%9A%94%E7%A6%BB%E6%80%A7%E5%92%8C%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="toc-text">（一）隔离性和隔离级别</span></a></li></ol>
     </div>
   </section>
 
-
-  
-
-  
-    
-    
-  
-
-  <section class="widget tagcloud shadow desktop mobile">
-    
-  <header>
-    
-      <a href='/blog/tags/'><i class="fas fa-tags fa-fw" aria-hidden="true"></i><span class='name'>热门标签</span></a>
-    
-  </header>
-
-
-    <div class='content'>
-      <a href="/tags/Hexo/" style="font-size: 14px; color: #999">Hexo</a> <a href="/tags/MySQL/" style="font-size: 24px; color: #555">MySQL</a> <a href="/tags/binlog/" style="font-size: 14px; color: #999">binlog</a> <a href="/tags/redo-log/" style="font-size: 14px; color: #999">redo log</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 14px; color: #999">事务</a>
-    </div>
-  </section>
-
-
-  
 
   
 
 
 </aside>
+
 
 
         
@@ -630,8 +587,8 @@
 
 <script>
   window.pdata={}
-  pdata.ispage=false;
-  pdata.postTitle="";
+  pdata.ispage=true;
+  pdata.postTitle="MySQL-03 | 事务隔离：为什么你改了我还看不见？";
   pdata.commentPath="";
   pdata.commentPlaceholder="";
 

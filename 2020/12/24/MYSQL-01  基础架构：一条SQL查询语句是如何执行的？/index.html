@@ -389,8 +389,8 @@
 
 
   
-  <h1 id="MYSQL-01-基础架构：一条SQL查询语句是如何执行的？"><a href="#MYSQL-01-基础架构：一条SQL查询语句是如何执行的？" class="headerlink" title="MYSQL-01 | 基础架构：一条SQL查询语句是如何执行的？"></a>MYSQL-01 | 基础架构：一条SQL查询语句是如何执行的？</h1><h2 id="0-MYSQL慢查询"><a href="#0-MYSQL慢查询" class="headerlink" title="0 MYSQL慢查询"></a>0 MYSQL慢查询</h2><p>​        在web开发如此火爆的年代，数据库就成了我们开发中必不可少的一环。而使用数据库的绝大部分的时间是在单一的查询数据可，在大量的数据库查询中我们要尽可能的减少每一条的查询时间，而慢查询日志，就可以让我们在发现查询时间过长的SQL语句的时候对于查询为什么这么慢有很大帮助。</p>
-<p>​        下面是MYSQL <strong>慢查询日志：（一次性，永久的要修改my文件）</strong></p>
+  <h1 id="MySQL-01-基础架构：一条SQL查询语句是如何执行的？"><a href="#MySQL-01-基础架构：一条SQL查询语句是如何执行的？" class="headerlink" title="MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？"></a>MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？</h1><h2 id="0-MySQL慢查询"><a href="#0-MySQL慢查询" class="headerlink" title="0 MySQL慢查询"></a>0 MySQL慢查询</h2><p>​        在web开发如此火爆的年代，数据库就成了我们开发中必不可少的一环。而使用数据库的绝大部分的时间是在单一的查询数据可，在大量的数据库查询中我们要尽可能的减少每一条的查询时间，而慢查询日志，就可以让我们在发现查询时间过长的SQL语句的时候对于查询为什么这么慢有很大帮助。</p>
+<p>​        下面是MySQL<strong>慢查询日志：（一次性，永久的要修改my文件）</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">-- 查看慢查询日志是否打开</span><br><span class="line">show variables like &#39;%slow%&#39; ;</span><br><span class="line"></span><br><span class="line">-- 查看慢查询状态</span><br><span class="line">show global status like &#39;%slow%&#39;;</span><br><span class="line"> </span><br><span class="line">-- 打开慢查询日志</span><br><span class="line">set  @@global.slow_query_log &#x3D; ON;</span><br><span class="line"> </span><br><span class="line">-- 睡10s 测试慢查询</span><br><span class="line">select sleep(5) ;</span><br><span class="line"> </span><br><span class="line">-- 查看慢查询超时时间</span><br><span class="line">show variables like &#39;long_query%&#39;</span><br><span class="line"></span><br><span class="line">-- 设置慢查询时间，超过这个时间则记录入慢查询日志</span><br><span class="line">set long_query_time&#x3D;2</span><br><span class="line"></span><br><span class="line">-- 查看慢查询日志输出方式</span><br><span class="line">select @@global.log_output </span><br><span class="line"> </span><br><span class="line">-- 设置慢查询日志 table形式表示</span><br><span class="line">set @@global.log_output&#x3D;&#39;TABLE&#39;;</span><br><span class="line"> </span><br><span class="line">-- 查询慢查询日志</span><br><span class="line">select * from mysql.slow_log; </span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 
@@ -403,11 +403,11 @@
 
 <p>​        在上图的可以看出，基本上分为server层和存储引擎两个部分。</p>
 <p>​        server层包括连接器、查询缓存（在8.0之后删除了）、分析器、优化器和执行器等，几乎包揽了MYSQL所有<strong>重要的核心功能，以及所有的内置函数。</strong>所有跨存储引擎的功能都在这一层实现，比如存储过程。触发器、视图等。</p>
-<p>​        存储引擎负责<strong>数据的提取和存储</strong>功能。其架构是插件式（可更换），支持InnoDB、MyISAM、Memory等多个存储引擎，在MySQL 5.5.5版本开始默认InnoDB（在创建标时可以使用<code>engine=Memory</code>来使用你想要的存储引擎）。</p>
+<p>​        存储引擎负责<strong>数据的提取和存储</strong>功能。其架构是插件式（可更换），支持InnoDB、MyISAM、Memory等多个存储引擎，在MySQL5.5.5版本开始默认InnoDB（在创建标时可以使用<code>engine=Memory</code>来使用你想要的存储引擎）。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from T where ID&#x3D;10；</span><br></pre></td></tr></table></figure>
 <p>​        下面开始简单的解释一下上面的语句的执行流程。</p>
 <h2 id="2-连接器"><a href="#2-连接器" class="headerlink" title="2 连接器"></a>2 连接器</h2><p>​        在MySQL执行上面的数据前，首先要创建一个链接，来连接数据库，这个时候就是连接器来起作用。连接器主要负责和用户<strong>建立链接，获取权限，维持和管理连接</strong>。连接命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -h$ip -P$port -u$user -p -- 参数依次是数据库ip地址、端口号、用户名、密码</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MySQL-h$ip -P$port -u$user -p -- 参数依次是数据库ip地址、端口号、用户名、密码</span><br></pre></td></tr></table></figure>
 <p>​        连接命令中的mysql是客户端工具，用来和服务端建立连接。在完成经典的TCP三次握手后，连接器开始验证身份。</p>
 <ul>
 <li><p>如果用户名或密码错误，收到一个<code>ACCESS DENIED FOR USER</code> 的错误。</p>
@@ -426,7 +426,7 @@
 <p>​        解决上面的问题你可以用以下的两种方案：</p>
 <ol>
 <li>定期断开长连接。使用一段时间，或者程序里面判断一个占用内存过比较大的操作后，断开连接，之后查询重连。</li>
-<li>在MySQL 5.7或之后的版本中，你可以每次执行一个比较大的操作后使用<code>mysql_reset_connection</code>来初始化连接资源。这个过程不需要重连和重新做权限验证，但可以恢复到连接刚刚建立时的状态。</li>
+<li>在MySQL5.7或之后的版本中，你可以每次执行一个比较大的操作后使用<code>mysql_reset_connection</code>来初始化连接资源。这个过程不需要重连和重新做权限验证，但可以恢复到连接刚刚建立时的状态。</li>
 </ol>
 <h2 id="3-查询缓存"><a href="#3-查询缓存" class="headerlink" title="3 查询缓存"></a>3 查询缓存</h2><p>​        在连接上服务端之后，我们就来到了查询缓存。MySQL拿到一个查询语句后，先查询缓存中是否崔在。MySQL会把之前执行的SQL语句和结果以<strong>key-value</strong>对的形式直接<strong>缓存到内存中</strong>。key是之前查询的整个SQL语句，而value是查询结果。若果缓存命中直接返回给客户端。</p>
 <p>​        如果未命中，则继续后面的分析，优化和执行阶段，执行结果会保存到缓存中。</p>
@@ -434,7 +434,7 @@
 <p>​        查询缓存的命中率非常低，只要一个表进行了更新操作，这个表上的所有查询缓存都会被清空。因此可能刚刚把上一条执行结果缓存进去，马上该表就发生了更新导致缓存丢失。对于一个更新压力大的数据库，查询缓存命中率极低。除非你是一个静态表或者更新操作极少的表（系统配置表）。</p>
 <p>​        MySQL提供了按照需要是否使用缓存。可以将参数<code>query_cache_type</code>设置成<code>DEMAND</code>，这种模式下SQL语句不会使用查询缓存。对于使用查询缓存的语句，可以使用<code>SQL_CACHE</code>显示指定。如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select SQL_CACHE * from T where ID&#x3D;10；</span><br></pre></td></tr></table></figure>
-<p>​        <strong>注：查询缓存在 MySQL 8.0 版本直接删除了，没有查询缓存这个功能了。</strong></p>
+<p>​        <strong>注：查询缓存在 MySQL8.0 版本直接删除了，没有查询缓存这个功能了。</strong></p>
 <p>​        <strong>注：查询缓存命中返回结果前，会进行权限查询，判断当前用户是否有对这个表操作的权限。</strong></p>
 <p>​        </p>
 <h2 id="4-分析器"><a href="#4-分析器" class="headerlink" title="4 分析器"></a>4 分析器</h2><p>​        如果没有命中查询缓存，就开始真正的执行语句了。首先MySQL需要知道你要做什么，因此需要对SQL语句进行<strong>“词法分析”</strong>。你输入的是由多个字符串和空格组成的SQL语句，MySQL需要识别出里面的字符串的含义。</p>
@@ -490,10 +490,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-28T17:29:50+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-02T16:07:22+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Dec 28, 2020</p>
+    <p>更新于：Jan 2, 2021</p>
   </a>
 </div>
 
@@ -628,7 +628,7 @@ win、IOS系统使用markdown软件打开编辑，命令行使用v...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-MYSQL%E6%85%A2%E6%9F%A5%E8%AF%A2"><span class="toc-text">0 MYSQL慢查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text">1 基本结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%BF%9E%E6%8E%A5%E5%99%A8"><span class="toc-text">2 连接器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%95%BF%E7%9F%AD%E8%BF%9E%E6%8E%A5"><span class="toc-text">长短连接</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98"><span class="toc-text">3 查询缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%88%86%E6%9E%90%E5%99%A8"><span class="toc-text">4 分析器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E4%BC%98%E5%8C%96%E5%99%A8"><span class="toc-text">5 优化器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%89%A7%E8%A1%8C%E5%99%A8"><span class="toc-text">6 执行器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%B3%A8"><span class="toc-text">7 注</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-MySQL%E6%85%A2%E6%9F%A5%E8%AF%A2"><span class="toc-text">0 MySQL慢查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text">1 基本结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%BF%9E%E6%8E%A5%E5%99%A8"><span class="toc-text">2 连接器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%95%BF%E7%9F%AD%E8%BF%9E%E6%8E%A5"><span class="toc-text">长短连接</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98"><span class="toc-text">3 查询缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%88%86%E6%9E%90%E5%99%A8"><span class="toc-text">4 分析器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E4%BC%98%E5%8C%96%E5%99%A8"><span class="toc-text">5 优化器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%89%A7%E8%A1%8C%E5%99%A8"><span class="toc-text">6 执行器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%B3%A8"><span class="toc-text">7 注</span></a></li></ol>
     </div>
   </section>
 
