@@ -325,6 +325,10 @@
         
           
         
+          
+        
+          
+        
       
     
     
@@ -365,6 +369,103 @@
       
         <div>
           <a class='readmore' href='/2021/01/02/MySQL-03-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E6%94%B9%E4%BA%86%E6%88%91%E8%BF%98%E7%9C%8B%E4%B8%8D%E8%A7%81%EF%BC%9F/'>
+            Read More
+          </a>
+        </div>
+      
+    </div>
+  
+
+</div>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <div class="post post-v3 white-box reveal shadow">
+  
+  
+  
+  
+    
+    <h2 class="article-title" >
+      <a href="/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/">
+        MySQL-02 | 日志系统：一条SQL更新语句是如何执行的？
+      </a>
+    </h2>
+  
+  <div class='md'>
+    
+      
+        12mysql&gt; create table T(ID int primary key, c int);mysql&gt; update T set c&#x3D;c+1 where ID&#x3D;2;
+
+先走一遍查询SQL语句的流程，拿到数据行。
+
+执行更新，然后利用引擎接口把数据更新到内存中，同时将这次更新操作记录到redo log中，此时redo log相应数据状态处于prepa...
+      
+    
+  </div>
+  
+    <div class='meta-v3' line_style='solid'>
+      <div>
+        
+        <time>2020-12-28</time>
+        
+          <span class="dot"></span>
+          <a class="category-link" href="/categories/MySQL%E8%A7%A3%E6%9E%90/">MySQL解析</a>
+        
+      </div>
+      
+        <div>
+          <a class='readmore' href='/2020/12/28/02-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/'>
+            Read More
+          </a>
+        </div>
+      
+    </div>
+  
+
+</div>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <div class="post post-v3 white-box reveal shadow">
+  
+  
+  
+  
+    
+    <h2 class="article-title" >
+      <a href="/2020/12/24/MYSQL-01%20%20%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/">
+        MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？
+      </a>
+    </h2>
+  
+  <div class='md'>
+    
+      
+        MySQL-01 | 基础架构：一条SQL查询语句是如何执行的？0 MySQL慢查询​        在web开发如此火爆的年代，数据库就成了我们开发中必不可少的一环。而使用数据库的绝大部分的时间是在单一的查询数据可，在大量的数据库查询中我们要尽可能的减少每一条的查询时间，而慢查询日志，就可以让我们在发现查询时间过长的SQL语句的时候对于查询为什么这么慢有很大帮助。
+​        下面是...
+      
+    
+  </div>
+  
+    <div class='meta-v3' line_style='solid'>
+      <div>
+        
+        <time>2020-12-24</time>
+        
+          <span class="dot"></span>
+          <a class="category-link" href="/categories/MySQL%E8%A7%A3%E6%9E%90/">MySQL解析</a>
+        
+      </div>
+      
+        <div>
+          <a class='readmore' href='/2020/12/24/MYSQL-01%20%20%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F/'>
             Read More
           </a>
         </div>
@@ -483,14 +584,9 @@
             ><div class='name'>Hexo</div><div class='badge'>(1)</div></a></li>
         
           <li><a class="flat-box"
-            title="/categories/MySQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/" href="/categories/MySQL-%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/"
-            id="categoriesMySQL-E6B7B1E5BAA6E8A7A3E69E90"
-            ><div class='name'>MySQL_深度解析</div><div class='badge'>(2)</div></a></li>
-        
-          <li><a class="flat-box"
             title="/categories/MySQL%E8%A7%A3%E6%9E%90/" href="/categories/MySQL%E8%A7%A3%E6%9E%90/"
             id="categoriesMySQLE8A7A3E69E90"
-            ><div class='name'>MySQL解析</div><div class='badge'>(1)</div></a></li>
+            ><div class='name'>MySQL解析</div><div class='badge'>(3)</div></a></li>
         
       </ul>
     </div>
