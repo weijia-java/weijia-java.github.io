@@ -24,6 +24,8 @@
             
             <tag> 事务 </tag>
             
+            <tag> undo log </tag>
+            
         </tags>
       
     </entry>
