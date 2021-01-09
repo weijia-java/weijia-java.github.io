@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>秒杀 01 | 做好动静分离</title>
+      <link href="2021/01/09/%E7%A7%92%E6%9D%80-01-%E5%81%9A%E5%A5%BD%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB/"/>
+      <url>2021/01/09/%E7%A7%92%E6%9D%80-01-%E5%81%9A%E5%A5%BD%E5%8A%A8%E9%9D%99%E5%88%86%E7%A6%BB/</url>
+      
+        <content type="html"><![CDATA[<h2 id="秒杀对于系统的要求"><a href="#秒杀对于系统的要求" class="headerlink" title="秒杀对于系统的要求"></a>秒杀对于系统的要求</h2><p>秒杀场景中，对于系统的要求其实就是：快、准、稳。</p><p>而快就是要求系统响应速度要快，而这就在于减少请求的数据量和减少一些没有必要的请求。</p><p>而动静分离就是只对于一些必要的信息数据进行刷新请求，而一些长久不变的数据本地化或者更新时不做请求。</p><h2 id="动静分离"><a href="#动静分离" class="headerlink" title="动静分离"></a>动静分离</h2><p>就是把用户请求的数据（如HTML页面）划分为“动态数据”和“静态数据”。</p><p>主要区别就是看页面中输出的数据是否和URL、浏览者、时间、低于相关。以及是否含有Cookie等私密数据。</p><h3 id="怎么做静态数据缓存？"><a href="#怎么做静态数据缓存？" class="headerlink" title="怎么做静态数据缓存？"></a>怎么做静态数据缓存？</h3><ol><li>把静态数据缓存到离用户最近的地方：用户浏览器里、CDN或服务端的cache中。</li><li>静态化改造就是直接缓存HTTP链接：在第一次http请求之后，将整个链接作为key，链接响应的页面作为value，缓存到cache中（减少生成一个页面在服务器中的请求）。</li><li>决定让谁来进行缓存，因为java中servlet对http解析较慢，所以可以把http请求缓存在web服务器上。</li></ol><h3 id="如何做动静分离改造"><a href="#如何做动静分离改造" class="headerlink" title="如何做动静分离改造"></a>如何做动静分离改造</h3><ol><li>URL唯一化：将商品详情系统中对于详情页面的请求的URL可以做到唯一，每个商品由ID来标识，那么<a href="http://item.xxx.com/item.htm?id=xxxxxx%E5%B0%B1%E5%8F%AF%E4%BB%A5%E4%BD%9C%E4%B8%BA%E5%94%AF%E4%B8%80%E7%9A%84URL%E6%A0%87%E8%AF%86%EF%BC%88key%EF%BC%89%EF%BC%8C%E7%BB%84%E8%A3%85%E5%A5%BD%E7%9A%84%E9%A1%B5%E9%9D%A2%E4%BD%9C%E4%B8%BAvalue%E3%80%82">http://item.xxx.com/item.htm?id=xxxxxx就可以作为唯一的URL标识（key），组装好的页面作为value。</a></li><li>分离浏览者相关因素：而对于判断用户是否登录，登录身份这个随时都有可能发生变化的因素我们可以通过动态请求获取。</li><li>分离时间因素：服务端输出的时间也通过动态获取（不能用本地时间，因为可修改）。</li><li>异步化地域因素：地域商品推荐或者一个地域化差异信息可以通过动态获取。</li><li>去掉cookie：服务端输出的页面包含的cookie可以通过代码软件删除，知识将服务端cache中的页面cookie删除，客户端的页面cookie照样存在。</li></ol><p>两种动态能容处理方案：</p><ol><li>ESI：在web代理服务上做动态内容请求，并将请求插入到静态页面中，用户直接拿到一个完整的页面。用户体验好，对服务器性能有影响。</li><li>CSI：动态能容由客户端单独发送一个异步请求获取，在客户端组装，对服务器良好，用户体验差。</li></ol><h3 id="动静分离几种架构方案"><a href="#动静分离几种架构方案" class="headerlink" title="动静分离几种架构方案"></a>动静分离几种架构方案</h3><ol><li>实体机单机部署</li><li>统一Cache层</li><li>上CDN</li></ol><h4 id="实体单机部署"><a href="#实体单机部署" class="headerlink" title="实体单机部署"></a>实体单机部署</h4><p>将虚拟机改为实体机，以增大Cache容量，采用一致性Hash分组的方式来提升命中率。Cache分组越少命中率越高，缺点会使单个商品集中在一个分组中，容易导致Cache被击穿，分组不能太少也不能太多。</p><p>优点在于无网络瓶颈，能够使用大内存，提升命中率。</p><img src="https://static001.geekbang.org/resource/image/4e/8a/4e4f0b0e5b83deaccb8cc49ad40f1a8a.jpg" class="lazyload" data-srcset="https://static001.geekbang.org/resource/image/4e/8a/4e4f0b0e5b83deaccb8cc49ad40f1a8a.jpg" srcset="data:image/png;base64,666" style="zoom:50%;" /><h4 id="统一Cache层"><a href="#统一Cache层" class="headerlink" title="统一Cache层"></a>统一Cache层</h4><p>单独将Cache统一分离出来，形成一个单独的Cache集群：将Cache单独拿出来统一管理可以减少运维成本，方便接入其他静态化系统，可以最大化的利用内存，不同系统之间的内存可以动态切换。</p><p>缺点：Cache层内部交换存在网络瓶颈，挂掉一台会影响很大一部分缓存数据。</p><img src="https://static001.geekbang.org/resource/image/36/d2/36af87e321f9d6a2f4516bf2e21e55d2.jpg" class="lazyload" data-srcset="https://static001.geekbang.org/resource/image/36/d2/36af87e321f9d6a2f4516bf2e21e55d2.jpg" srcset="data:image/png;base64,666" alt="![img](https://static001.geekbang.org/resource/image/36/d2/36af87e321f9d6a2f4516bf2e21e55d2.jpg)" style="zoom:50%;" /><h4 id="CDN"><a href="#CDN" class="headerlink" title="CDN"></a>CDN</h4><p>存在的问题：</p><ol><li>失效问题：上CDN就要保证CDN可以在秒级内，让分布在全国世界各地的Cache同时失效。</li><li>命中率问题：放在全国的CDN上必导致Cache分散，就会导致命中率降低。</li><li>发布更新问题：发布系统必须足够简洁高效，而且还要考虑快速回滚和排查问题的简便性。</li></ol><p>优化办法：</p><ol><li>靠近访问量比较集中地区使用cache。</li><li>离主站较远的地区。</li><li>节点到主站间的网络比较好，而且稳定。</li><li>节点内容比较大，不会占用其他CDN太多的资源。</li><li>节点不易太多。</li></ol><p>考虑使用CDN的二级Cache比较合适，因为二级Cache数量少，容量大，让用户先请求CDN的二级Cache中，没命中会源站点获取数据。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 秒杀 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 动静分离 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>MySQL-03 | 事务隔离：为什么你改了我还看不见？</title>
       <link href="2021/01/02/MySQL-03-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E6%94%B9%E4%BA%86%E6%88%91%E8%BF%98%E7%9C%8B%E4%B8%8D%E8%A7%81%EF%BC%9F/"/>
       <url>2021/01/02/MySQL-03-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E6%94%B9%E4%BA%86%E6%88%91%E8%BF%98%E7%9C%8B%E4%B8%8D%E8%A7%81%EF%BC%9F/</url>
