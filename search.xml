@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>为什么HashMap的负载因子为0.75?</title>
+      <link href="2021/01/30/%E4%B8%BA%E4%BB%80%E4%B9%88HashMap%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9B%A0%E5%AD%90%E4%B8%BA0-75/"/>
+      <url>2021/01/30/%E4%B8%BA%E4%BB%80%E4%B9%88HashMap%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9B%A0%E5%AD%90%E4%B8%BA0-75/</url>
+      
+        <content type="html"><![CDATA[<h2 id="负载因子的作用"><a href="#负载因子的作用" class="headerlink" title="负载因子的作用"></a>负载因子的作用</h2><p>负载因子是关于扩容机制的一个重要参数，意思就是如果当前容器的容量，达到了我们设定的最大值。就开始执行扩容操作。</p><ul><li>最大值：指数组中元素个数大于等于数组最大容量*负载因子</li><li>当容量大于等于最大值时就进行扩容操作，并且进行二次hash</li></ul><p>而负载因子就相当于扩容机制的阀值。当插入后的容量超过这个阈值的时候。就会进行扩容。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * The load factor used when none specified in constructor.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">float</span> DEFAULT_LOAD_FACTOR = <span class="number">0.75f</span>;</span><br></pre></td></tr></table></figure><h2 id="原因解释"><a href="#原因解释" class="headerlink" title="原因解释"></a>原因解释</h2><p>负载因子的作用就是用来节省空间和时间。</p><h3 id="负载因子是1-0"><a href="#负载因子是1-0" class="headerlink" title="负载因子是1.0"></a>负载因子是1.0</h3><p>下面是HashMap的底层数据结构</p><img src="http://pics4.baidu.com/feed/63d9f2d3572c11dffec8455e8d2076d6f703c244.jpeg?token=9e4d80f4c2c82e6850f91f4cd1b62121&s=5CA23C728DB3748008D900C10000E032" class="lazyload" data-srcset="http://pics4.baidu.com/feed/63d9f2d3572c11dffec8455e8d2076d6f703c244.jpeg?token=9e4d80f4c2c82e6850f91f4cd1b62121&s=5CA23C728DB3748008D900C10000E032" srcset="data:image/png;base64,666"  /><p>数据从一开始是保存到数组里面，当发生Hash碰撞的时候，就会咋这个数据节点上建立一个链表，当链表达到一定的长度的时候就会将链表转换为一颗红黑树。</p><p><strong>负载因子是1.0的时候，也就意味着，只有数组的8个值全部填充完毕，才会发生扩容。这意味着很大的问题，因为Hash冲突是避免不了的。在1.0的情况下会出现大量的Hash冲突，也就意味着红黑树汇编的异常复杂。查询效率会非常不利。这种情况就是用时间换空间，得不偿失。</strong></p><h3 id="负载因子是0-5"><a href="#负载因子是0-5" class="headerlink" title="负载因子是0.5"></a>负载因子是0.5</h3><p>意味着，当数组达到一半的时候就进行扩容，既然填充的元素少了，Hash冲突也会减少，那么底层的链表长度或者是红黑树的高度就会降低。查询效率就会增加。</p><p>但是空间利用率就会极其低下</p><h3 id="负载因子是0-75"><a href="#负载因子是0-75" class="headerlink" title="负载因子是0.75"></a>负载因子是0.75</h3><p>0.75是一个时间和空间平衡下来得到的结果，源码注释如下：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">* &lt;p&gt;As a general rule, <span class="function">the <span class="keyword">default</span> load <span class="title">factor</span> <span class="params">(<span class="number">.75</span>)</span> offers a good</span></span><br><span class="line"><span class="function">* tradeoff between time and space costs.  Higher values decrease the</span></span><br><span class="line"><span class="function">* space overhead but increase the lookup <span class="title">cost</span> <span class="params">(reflected in most of</span></span></span><br><span class="line"><span class="function"><span class="params">* the operations of the &lt;tt&gt;HashMap&lt;/tt&gt; class, including</span></span></span><br><span class="line"><span class="function"><span class="params">* &lt;tt&gt;get&lt;/tt&gt; and &lt;tt&gt;put&lt;/tt&gt;)</span>.  The expected number of entries in</span></span><br><span class="line"><span class="function">* the map and its load factor should be taken into account when</span></span><br><span class="line"><span class="function">* setting its initial capacity, so as to minimize the number of</span></span><br><span class="line"><span class="function">* rehash operations.  If the initial capacity is greater than the</span></span><br><span class="line"><span class="function">* maximum number of entries divided by the load factor, no rehash</span></span><br><span class="line"><span class="function">* operations will ever occur.</span></span><br></pre></td></tr></table></figure><p>大致意思就是说负载因子是0.75的时候，空间利用率比较高，而且避免了相当多的Hash冲突，使得底层的链表或者是红黑树的高度比较低，提升了空间效率。</p><p>OK，写到这答案基本上就出来了，一句话能总结的写成了一篇文章。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> java source code </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> HashMap </tag>
+            
+            <tag> 负载因子 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>MySQL-04 | 索引的前世今生：为什么索引内加快查询速度？</title>
       <link href="2021/01/16/MySQL-04-%E7%B4%A2%E5%BC%95%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E7%B4%A2%E5%BC%95%E5%8F%AF%E4%BB%A5%E5%8A%A0%E5%BF%AB%E6%9F%A5%E8%AF%A2%E9%80%9F%E5%BA%A6%EF%BC%9F/"/>
       <url>2021/01/16/MySQL-04-%E7%B4%A2%E5%BC%95%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E7%B4%A2%E5%BC%95%E5%8F%AF%E4%BB%A5%E5%8A%A0%E5%BF%AB%E6%9F%A5%E8%AF%A2%E9%80%9F%E5%BA%A6%EF%BC%9F/</url>
